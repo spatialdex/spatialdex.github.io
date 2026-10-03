@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpatialDex: 3D-Grounded Bimanual Dexterity from RGB-Only Human Videos</title>
+  <meta name="description" content="SpatialDex learns 3D-grounded bimanual dexterity from RGB-only human videos through reconstruction-augmented visuomotor pre-training.">
+  <!-- Anonymous review period: keep out of search results. Remove at camera-ready. -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="SpatialDex: 3D-Grounded Bimanual Dexterity from RGB-Only Human Videos">
+  <meta property="og:description" content="Reconstruction-augmented visuomotor pre-training of 3D-grounded bimanual dexterity from RGB-only human videos.">
+  <meta property="og:url" content="https://spatialdex.github.io/">
+  <meta property="og:image" content="https://spatialdex.github.io/assets/figures/teaser.webp">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero" id="top">
+    <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/posters/hero.jpg">
+      <source src="assets/videos/hero.mp4" type="video/mp4">
+    </video>
+    <div class="hero-shade"></div>
+    <div class="wrap hero-text">
+      <h1 class="pub-name">SpatialDex</h1>
+      <p class="pub-title">Reconstruction-Augmented Visuomotor Pre-Training of 3D-Grounded Bimanual Dexterity from RGB-Only Human Videos</p>
+      <div class="authors">Anonymous Authors</div>
+      <div class="pub-links" aria-label="Project resources">
+        <span class="pub-btn pending" aria-disabled="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
+          Paper<span class="soon">Coming Soon</span>
+        </span>
+        <a class="pub-btn primary" href="#video">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
+          Video
+        </a>
+        <span class="pub-btn pending" aria-disabled="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>
+          Data<span class="soon">Coming Soon</span>
+        </span>
+      </div>
+    </div>
+    <a class="scroll-cue" href="#abstract" aria-label="Scroll to content">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </a>
+  </header>
+
+  <main>
+
+    <!-- ============ ABSTRACT ============ -->
+    <section class="block" id="abstract">
+      <div class="wrap content">
+        <h2 class="sec-title">Abstract</h2>
+        <p>We present <span class="hl">SpatialDex</span>, a framework that learns 3D-grounded bimanual dexterity from RGB-only human videos through reconstruction-augmented visuomotor pre-training. The central idea is to learn human behavior together with its spatial context. From each video, we reconstruct the scene geometry and estimate the hand motion, and align them at a shared video-level scale using the hand-size prior of 3D hand estimates. We retain the reconstructed geometry as both a policy input and a prediction target. The policy grounds the token grid of a pre-trained vision-language model in this geometry through gated residual fusion, is trained to predict future scene geometry alongside wrist and finger actions, and generates finger motion conditioned on the predicted trajectories of both wrists. Pre-trained on 1M human-video clips and fine-tuned with a small number of robot demonstrations, SpatialDex outperforms state-of-the-art methods by 16.5 points on nine simulated dexterous tasks across two embodiments and by 38.3 points on six real-world bimanual dexterous tasks. Under a matched comparison, pre-training with reconstructed geometry improves success by 14.2 points over pre-training on hand motion alone.</p>
+
+        <ul class="points">
+          <li><b>1M human-video clips</b> for pre-training, reconstructed from RGB-only video.</li>
+          <li><b>+38.3 points</b> over the strongest baseline on six real-world bimanual tasks.</li>
+          <li><b>+16.5 points</b> over the strongest baseline on nine simulated tasks across two embodiments.</li>
+          <li><b>+14.2 points</b> from pre-training with reconstructed geometry instead of hand motion alone.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ TEASER ============ -->
+    <section class="block" id="overview">
+      <div class="wrap">
+        <figure class="teaser">
+          <div class="teaser-card">
+            <img src="assets/figures/teaser_top.webp" width="2000" height="1336" alt="SpatialDex overview: scene geometry and hand motion reconstructed from RGB-only human videos supervise policy pre-training, and the policy is fine-tuned on robot demonstrations.">
+            <div class="teaser-grid">
+              <div class="clip" data-speed="4"><span class="tag">Pass Flower</span><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/flower/v1.jpg" data-src="assets/videos/flower/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><span class="tag">Pour Water</span><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/pour/v1.jpg" data-src="assets/videos/pour/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><span class="tag">Spray Plant</span><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/spray/v1.jpg" data-src="assets/videos/spray/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><span class="tag">Unzip Bag</span><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/unzip/v1.jpg" data-src="assets/videos/unzip/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><span class="tag">Sweep Trash</span><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/sweep/v1.jpg" data-src="assets/videos/sweep/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><span class="tag">Pack Suitcase</span><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/suitcase/v1.jpg" data-src="assets/videos/suitcase/v1.mp4"></video></div>
+            </div>
+          </div>
+          <figcaption><b>SpatialDex</b> reconstructs scene geometry and estimates hand motion from RGB-only human videos and aligns them at a shared video-level scale to jointly supervise policy pre-training. The policy maps RGB-D observations to bimanual dexterous actions and is adapted to specific tasks through fine-tuning on robot demonstrations.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ METHOD ============ -->
+    <section class="block" id="method">
+      <div class="wrap content">
+        <h2 class="sec-title">How SpatialDex Works</h2>
+        <p class="lead-p">SpatialDex turns each RGB-only human video into paired supervision of scene geometry and hand motion, pre-trains a 3D-grounded visuomotor policy on that supervision, and adapts the policy to a robot with a small number of teleoperated demonstrations.</p>
+
+        <h3 class="subhead">Aligned Scene and Hand Reconstruction</h3>
+        <figure class="fig">
+          <img src="assets/figures/pipeline.webp" width="2000" height="420" alt="Data pipeline: hand motion estimation and scene reconstruction from an RGB-only video, joint alignment across frames at a shared scale, producing aligned scene geometry and hand motion." loading="lazy">
+          <figcaption>From an RGB-only video, SpatialDex recovers hand meshes and wrist trajectories, point clouds and camera poses up to an unknown scale. Aligning the reconstructed hand points with the estimated hand meshes across frames yields one scale shared by the whole video and a rigid transformation per frame, which places the scene geometry and the hand motion in a common frame. The aligned reconstruction supplies the depth observations, the wrist and finger action targets, and the future geometry targets for policy pre-training.</figcaption>
+        </figure>
+
+        <h3 class="subhead">3D-Grounded Visuomotor Policy</h3>
+        <figure class="fig">
+          <img src="assets/figures/policy.webp" width="2000" height="485" alt="Policy architecture: depth is back-projected and encoded into a geometry grid aligned with the visual grid, fused through dual sigmoid gates into a VLM backbone, which feeds wrist and finger experts and a training-only geometry predictor." loading="lazy">
+          <figcaption>Reconstructed geometry enters the policy in two roles: as an <b>input</b>, fused into the visual token grid of a pre-trained VLM, and as a <b>target</b>, predicted at future frames by a training-only head.</figcaption>
+        </figure>
+        <ul class="points">
+          <li><b>Grid-aligned geometry.</b> Depth samples from each image patch are back-projected to metric 3D points, encoded jointly with a point-cloud encoder, and pooled back to their patches, so geometry lands on the same token grid as the VLM's visual features.</li>
+          <li><b>Progressive dual-gated fusion.</b> Two sigmoid gates modulate appearance and geometry before a residual update whose weight warms up from zero, leaving the pre-trained visual priors intact early in training.</li>
+          <li><b>Forward dynamics prediction.</b> A training-only predictor estimates future scene geometry from the shared context, so the representation must retain spatial structure that the action losses alone do not demand.</li>
+          <li><b>Coordinated wrist and finger experts.</b> A wrist expert predicts both wrist trajectories, and a finger expert predicts finger actions conditioned on them.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ REAL-WORLD ============ -->
+    <section class="block" id="real-world">
+      <div class="wrap content">
+        <h2 class="sec-title">Dexterous Manipulation on a Real Robot</h2>
+        <p class="lead-p">We evaluate on a bimanual platform with Wuji hands on Tianji arms. For each task we collect 50 teleoperated demonstrations and run 10 trials per method. The clips below show SpatialDex on four scene variations of each task, played at 4&times; speed.</p>
+
+        <div class="task-list">
+          <nav class="tabbar task-nav" aria-label="Real-world tasks">
+            <a href="#task-flower" aria-current="true">Pass Flower</a>
+            <a href="#task-pour">Pour Water</a>
+            <a href="#task-spray">Spray Plant</a>
+            <a href="#task-unzip">Unzip Bag</a>
+            <a href="#task-sweep">Sweep Trash</a>
+            <a href="#task-suitcase">Pack Suitcase</a>
+          </nav>
+
+          <article class="task" id="task-flower">
+            <div class="task-head"><h3>Pass Flower</h3></div>
+            <p class="task-desc">Pull the flower from the vase, pass it to the other hand, and place it in the basket.</p>
+            <div class="var-grid">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/flower/v1.jpg" data-src="assets/videos/flower/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/flower/v2.jpg" data-src="assets/videos/flower/v2.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/flower/v3.jpg" data-src="assets/videos/flower/v3.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/flower/v4.jpg" data-src="assets/videos/flower/v4.mp4"></video></div>
+            </div>
+          </article>
+
+          <article class="task" id="task-pour">
+            <div class="task-head"><h3>Pour Water</h3></div>
+            <p class="task-desc">Lift the kettle and pour water into the pot.</p>
+            <div class="var-grid">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/pour/v1.jpg" data-src="assets/videos/pour/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/pour/v2.jpg" data-src="assets/videos/pour/v2.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/pour/v3.jpg" data-src="assets/videos/pour/v3.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/pour/v4.jpg" data-src="assets/videos/pour/v4.mp4"></video></div>
+            </div>
+          </article>
+
+          <article class="task" id="task-spray">
+            <div class="task-head"><h3>Spray Plant</h3></div>
+            <p class="task-desc">Pick up the spray bottle and press its trigger to water the plant.</p>
+            <div class="var-grid">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/spray/v1.jpg" data-src="assets/videos/spray/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/spray/v2.jpg" data-src="assets/videos/spray/v2.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/spray/v3.jpg" data-src="assets/videos/spray/v3.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/spray/v4.jpg" data-src="assets/videos/spray/v4.mp4"></video></div>
+            </div>
+          </article>
+
+          <article class="task" id="task-unzip">
+            <div class="task-head"><h3>Unzip Bag</h3></div>
+            <p class="task-desc">Open the zipper of a soft, deformable bag using both hands.</p>
+            <div class="var-grid">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/unzip/v1.jpg" data-src="assets/videos/unzip/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/unzip/v2.jpg" data-src="assets/videos/unzip/v2.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/unzip/v3.jpg" data-src="assets/videos/unzip/v3.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/unzip/v4.jpg" data-src="assets/videos/unzip/v4.mp4"></video></div>
+            </div>
+          </article>
+
+          <article class="task" id="task-sweep">
+            <div class="task-head"><h3>Sweep Trash</h3></div>
+            <p class="task-desc">Hold the dustpan in one hand and sweep the trash into it with the brush in the other.</p>
+            <div class="var-grid">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/sweep/v1.jpg" data-src="assets/videos/sweep/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/sweep/v2.jpg" data-src="assets/videos/sweep/v2.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/sweep/v3.jpg" data-src="assets/videos/sweep/v3.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/sweep/v4.jpg" data-src="assets/videos/sweep/v4.mp4"></video></div>
+            </div>
+          </article>
+
+          <article class="task" id="task-suitcase">
+            <div class="task-head"><h3>Pack Suitcase</h3></div>
+            <p class="task-desc">Pick up items from the table and pack them into the open suitcase.</p>
+            <div class="var-grid">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/suitcase/v1.jpg" data-src="assets/videos/suitcase/v1.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/suitcase/v2.jpg" data-src="assets/videos/suitcase/v2.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/suitcase/v3.jpg" data-src="assets/videos/suitcase/v3.mp4"></video></div>
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/suitcase/v4.jpg" data-src="assets/videos/suitcase/v4.mp4"></video></div>
+            </div>
+          </article>
+        </div>
+
+        <h3 class="subhead">Success Rate</h3>
+        <div class="bars" id="real-bars" data-tasks="Pass Flower|Pour Water|Spray Plant|Unzip Bag|Sweep Trash|Pack Suitcase" aria-label="Real-world success rate per method">
+          <div class="bar-group">
+            <div class="bar-row ours" tabindex="0" data-v="80.0,80.0,90.0,80.0,70.0,90.0"><div class="name">SpatialDex (Ours)</div><div class="track"><div class="fill" style="width:81.7%"></div><span class="val" style="left:81.7%">81.7</span></div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-group-label">Trained from scratch</div>
+            <div class="bar-row" tabindex="0" data-v="40.0,40.0,10.0,40.0,40.0,50.0"><div class="name">ACT</div><div class="track"><div class="fill" style="width:36.7%"></div><span class="val" style="left:36.7%">36.7</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="10.0,10.0,20.0,10.0,0.0,30.0"><div class="name">iDP3</div><div class="track"><div class="fill" style="width:13.3%"></div><span class="val" style="left:13.3%">13.3</span></div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-group-label">Pre-trained VLA</div>
+            <div class="bar-row" tabindex="0" data-v="40.0,40.0,50.0,50.0,20.0,60.0"><div class="name">&pi;<sub>0.5</sub></div><div class="track"><div class="fill" style="width:43.3%"></div><span class="val" style="left:43.3%">43.3</span></div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-group-label">Geometry-aware VLAs</div>
+            <div class="bar-row" tabindex="0" data-v="20.0,20.0,40.0,20.0,30.0,40.0"><div class="name">GeoVLA</div><div class="track"><div class="fill" style="width:28.3%"></div><span class="val" style="left:28.3%">28.3</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="30.0,40.0,20.0,20.0,30.0,40.0"><div class="name">Any3D-VLA</div><div class="track"><div class="fill" style="width:30.0%"></div><span class="val" style="left:30.0%">30.0</span></div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-group-label">Human-video pre-trained</div>
+            <div class="bar-row" tabindex="0" data-v="30.0,20.0,50.0,40.0,30.0,50.0"><div class="name">VITRA</div><div class="track"><div class="fill" style="width:36.7%"></div><span class="val" style="left:36.7%">36.7</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="30.0,40.0,20.0,40.0,10.0,50.0"><div class="name">UniDex</div><div class="track"><div class="fill" style="width:31.7%"></div><span class="val" style="left:31.7%">31.7</span></div></div>
+          </div>
+        </div>
+        <p class="bar-note">Success rate (%) over 60 trials per method: six tasks, ten trials each. Hover over or tap a bar for per-task results.</p>
+
+        <h3 class="subhead">Per-Task Success Rates</h3>
+        <p class="tbl-cap"><b>Real-world success rates (%).</b> Ten trials per task; the average is over all 60 trials. SpatialDex reaches 81.7%; the strongest baseline, &pi;<sub>0.5</sub>, reaches 43.3%.</p>
+        <div class="table-scroll">
+          <table class="res">
+            <thead>
+              <tr><th>Method</th><th>Pass<br>Flower</th><th>Pour<br>Water</th><th>Spray<br>Plant</th><th>Unzip<br>Bag</th><th>Sweep<br>Trash</th><th>Pack<br>Suitcase</th><th class="avg">Avg.</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ACT</td><td>40.0</td><td>40.0</td><td>10.0</td><td>40.0</td><td>40.0</td><td>50.0</td><td class="avg">36.7</td></tr>
+              <tr><td>iDP3</td><td>10.0</td><td>10.0</td><td>20.0</td><td>10.0</td><td>0.0</td><td>30.0</td><td class="avg">13.3</td></tr>
+              <tr class="sep"><td>&pi;<sub>0.5</sub></td><td>40.0</td><td>40.0</td><td>50.0</td><td>50.0</td><td>20.0</td><td>60.0</td><td class="avg">43.3</td></tr>
+              <tr class="sep"><td>GeoVLA</td><td>20.0</td><td>20.0</td><td>40.0</td><td>20.0</td><td>30.0</td><td>40.0</td><td class="avg">28.3</td></tr>
+              <tr><td>Any3D-VLA</td><td>30.0</td><td>40.0</td><td>20.0</td><td>20.0</td><td>30.0</td><td>40.0</td><td class="avg">30.0</td></tr>
+              <tr class="sep"><td>VITRA</td><td>30.0</td><td>20.0</td><td>50.0</td><td>40.0</td><td>30.0</td><td>50.0</td><td class="avg">36.7</td></tr>
+              <tr><td>UniDex</td><td>30.0</td><td>40.0</td><td>20.0</td><td>40.0</td><td>10.0</td><td>50.0</td><td class="avg">31.7</td></tr>
+              <tr class="sep ours"><td>SpatialDex (Ours)</td><td>80.0</td><td>80.0</td><td>90.0</td><td>80.0</td><td>70.0</td><td>90.0</td><td class="avg">81.7</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BASELINE COMPARISON ============ -->
+    <section class="block" id="comparison">
+      <div class="wrap content">
+        <h2 class="sec-title">End-to-End Comparison with Baselines</h2>
+        <p class="lead-p">Full rollouts of SpatialDex, the strongest baseline <a href="https://arxiv.org/abs/2504.16054" target="_blank" rel="noopener">&pi;<sub>0.5</sub></a>, and the human-video pre-trained <a href="https://arxiv.org/abs/2510.21571" target="_blank" rel="noopener">VITRA</a> on three of the six tasks, with comparable table setups and played at 4&times; speed. The percentage next to each method is its success rate over ten trials on that task; the baseline clips show typical failures.</p>
+
+        <div class="cmp" id="cmp-flower">
+          <h3 class="cmp-task">Pass Flower</h3>
+          <div class="cmp-grid">
+            <figure class="cmp-item ours">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/flower/v1.jpg" data-src="assets/videos/flower/v1.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">SpatialDex (Ours)</span><span class="cmp-rate">80%</span></div>
+                <span class="result ok">Success</span>
+                <p>Pulls the flower from the vase, passes it to the other hand, and places it in the basket.</p>
+              </figcaption>
+            </figure>
+            <figure class="cmp-item">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/compare/flower/pi05.jpg" data-src="assets/videos/compare/flower/pi05.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">&pi;<sub>0.5</sub></span><span class="cmp-rate">40%</span></div>
+                <span class="result">Handover not completed</span>
+                <p>Pulls the flower from the vase, but the other hand never takes it.</p>
+              </figcaption>
+            </figure>
+            <figure class="cmp-item">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/compare/flower/vitra.jpg" data-src="assets/videos/compare/flower/vitra.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">VITRA</span><span class="cmp-rate">30%</span></div>
+                <span class="result">Loses the flower</span>
+                <p>Starts pulling the flower, then lets go and leaves it leaning out of the vase.</p>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="cmp" id="cmp-pour">
+          <h3 class="cmp-task">Pour Water</h3>
+          <div class="cmp-grid">
+            <figure class="cmp-item ours">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/pour/v3.jpg" data-src="assets/videos/pour/v3.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">SpatialDex (Ours)</span><span class="cmp-rate">80%</span></div>
+                <span class="result ok">Success</span>
+                <p>Lifts the kettle and pours water into the pot.</p>
+              </figcaption>
+            </figure>
+            <figure class="cmp-item">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/compare/pour/pi05.jpg" data-src="assets/videos/compare/pour/pi05.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">&pi;<sub>0.5</sub></span><span class="cmp-rate">40%</span></div>
+                <span class="result">Never pours</span>
+                <p>Lifts the kettle but never brings it over the pot to pour.</p>
+              </figcaption>
+            </figure>
+            <figure class="cmp-item">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/compare/pour/vitra.jpg" data-src="assets/videos/compare/pour/vitra.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">VITRA</span><span class="cmp-rate">20%</span></div>
+                <span class="result">Misses the handle</span>
+                <p>Closes its hand beside the kettle handle and never lifts the kettle.</p>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="cmp" id="cmp-sweep">
+          <h3 class="cmp-task">Sweep Trash</h3>
+          <div class="cmp-grid">
+            <figure class="cmp-item ours">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/sweep/v1.jpg" data-src="assets/videos/sweep/v1.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">SpatialDex (Ours)</span><span class="cmp-rate">70%</span></div>
+                <span class="result ok">Success</span>
+                <p>Holds the dustpan in one hand and sweeps the trash into it with the brush in the other.</p>
+              </figcaption>
+            </figure>
+            <figure class="cmp-item">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/compare/sweep/pi05.jpg" data-src="assets/videos/compare/sweep/pi05.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">&pi;<sub>0.5</sub></span><span class="cmp-rate">20%</span></div>
+                <span class="result">Knocks over the brush</span>
+                <p>Holds the dustpan, but the other hand pushes the brush over instead of grasping it.</p>
+              </figcaption>
+            </figure>
+            <figure class="cmp-item">
+              <div class="clip" data-speed="4"><video class="lazy" muted loop playsinline preload="none" poster="assets/posters/compare/sweep/vitra.jpg" data-src="assets/videos/compare/sweep/vitra.mp4"></video></div>
+              <figcaption>
+                <div class="cmp-head"><span class="cmp-name">VITRA</span><span class="cmp-rate">30%</span></div>
+                <span class="result">Knocks over the brush</span>
+                <p>Tips the dustpan and knocks the brush onto its side without grasping it.</p>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BENCHMARK ============ -->
+    <section class="block" id="benchmark">
+      <div class="wrap content">
+        <h2 class="sec-title">Benchmark Evaluation</h2>
+        <p class="lead-p">We evaluate nine simulated tasks on two embodiments. SpatialDex reaches <span class="hl">76.3%</span> mean success, compared with 59.8% for the strongest baseline, &pi;<sub>0.5</sub>, with the largest gains on tasks that require bimanual coordination.</p>
+
+        <h3 class="subhead">DexJoCo Benchmark</h3>
+        <figure class="fig">
+          <img src="assets/figures/sim_dexjoco.webp" width="2000" height="1135" alt="Six DexJoCo tasks with Allegro hands on Franka arms: Fold Glasses, Hammer Nail, Water Plant, Pick Bucket, Bimanual Assembly, and Bimanual Microwave." loading="lazy">
+          <figcaption>Six <a href="https://arxiv.org/abs/2605.16257" target="_blank" rel="noopener">DexJoCo</a> tasks with Allegro hands on Franka arms. Fold Glasses (a), Hammer Nail (b), Water Plant (c), and Pick Bucket (d) are unimanual; Bimanual Assembly (e) and Bimanual Microwave (f) require coordinating both arms.</figcaption>
+        </figure>
+
+        <h3 class="subhead">Our Wuji + Tianji Tasks</h3>
+        <figure class="fig">
+          <img src="assets/figures/sim_wuji.webp" width="2000" height="559" alt="Three bimanual tasks with Wuji hands on Tianji arms: Relocate Ball, Pass Toy, and Sweep Trash." loading="lazy">
+          <figcaption>We introduce three bimanual tasks, Relocate Ball (g), Pass Toy (h), and Sweep Trash (i), with Wuji hands on Tianji arms, the same embodiment as our real robot, to evaluate the policy on hands with more degrees of freedom.</figcaption>
+        </figure>
+
+        <h3 class="subhead">Per-Task Success Rates</h3>
+        <p class="tbl-cap"><b>Simulation success rates (%).</b> Means over three seeds with 50 episodes per seed. Averages are unweighted over unimanual Allegro, bimanual Allegro, bimanual Wuji, and all nine tasks. Best per column in bold.</p>
+        <div class="table-scroll">
+          <table class="res compact">
+            <thead>
+              <tr class="group"><th></th><th colspan="6">Allegro + Franka</th><th colspan="3">Wuji + Tianji</th><th colspan="4" class="avg">Average</th></tr>
+              <tr><th>Method</th><th>Fold<br>Glasses</th><th>Hammer<br>Nail</th><th>Water<br>Plant</th><th>Pick<br>Bucket</th><th>Bimanual<br>Assembly</th><th>Bimanual<br>Microwave</th><th>Relocate<br>Ball</th><th>Pass<br>Toy</th><th>Sweep<br>Trash</th><th class="avg">Uni.<br>Allegro</th><th>Bi.<br>Allegro</th><th>Bi.<br>Wuji</th><th>All</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ACT</td><td>47.3</td><td>50.0</td><td>47.3</td><td>64.0</td><td>0.0</td><td>66.0</td><td>36.7</td><td>34.0</td><td>24.7</td><td class="avg">52.2</td><td>33.0</td><td>31.8</td><td>41.1</td></tr>
+              <tr><td>iDP3</td><td>10.0</td><td>18.0</td><td>48.7</td><td>54.0</td><td>0.0</td><td>38.0</td><td>20.0</td><td>14.7</td><td>10.7</td><td class="avg">32.7</td><td>19.0</td><td>15.1</td><td>23.8</td></tr>
+              <tr class="sep"><td>&pi;<sub>0.5</sub></td><td>72.0</td><td>84.7</td><td>88.7</td><td><b>84.0</b></td><td>5.3</td><td>70.0</td><td>64.7</td><td>36.0</td><td>32.7</td><td class="avg">82.4</td><td>37.7</td><td>44.5</td><td>59.8</td></tr>
+              <tr><td>GR00T N1.5</td><td>27.3</td><td>67.3</td><td>72.7</td><td>72.0</td><td>0.7</td><td>50.7</td><td>38.0</td><td>28.7</td><td>24.0</td><td class="avg">59.8</td><td>25.7</td><td>30.2</td><td>42.4</td></tr>
+              <tr><td>ManiFlow</td><td>12.7</td><td>20.0</td><td>37.3</td><td>56.7</td><td>0.0</td><td>55.3</td><td>30.7</td><td>24.0</td><td>19.3</td><td class="avg">31.7</td><td>27.7</td><td>24.7</td><td>28.4</td></tr>
+              <tr class="sep"><td>SpatialVLA</td><td>8.7</td><td>14.0</td><td>24.7</td><td>26.0</td><td>0.0</td><td>18.7</td><td>18.7</td><td>11.3</td><td>8.0</td><td class="avg">18.4</td><td>9.4</td><td>12.7</td><td>14.5</td></tr>
+              <tr><td>GeoVLA</td><td>12.0</td><td>18.7</td><td>26.7</td><td>28.0</td><td>0.7</td><td>22.0</td><td>24.7</td><td>15.3</td><td>12.0</td><td class="avg">21.4</td><td>11.4</td><td>17.3</td><td>17.8</td></tr>
+              <tr><td>Any3D-VLA</td><td>2.7</td><td>25.3</td><td>46.7</td><td>30.0</td><td>0.0</td><td>43.3</td><td>36.0</td><td>26.7</td><td>20.7</td><td class="avg">26.2</td><td>21.7</td><td>27.8</td><td>25.7</td></tr>
+              <tr class="sep"><td>VITRA</td><td>17.3</td><td>46.7</td><td>60.0</td><td>53.3</td><td>0.0</td><td>36.7</td><td>52.0</td><td>34.7</td><td>28.0</td><td class="avg">44.3</td><td>18.4</td><td>38.2</td><td>36.5</td></tr>
+              <tr><td>Being-H0.5</td><td>26.7</td><td>45.3</td><td>50.0</td><td>76.7</td><td>0.0</td><td>49.3</td><td>34.7</td><td>25.3</td><td>20.0</td><td class="avg">49.7</td><td>24.7</td><td>26.7</td><td>36.4</td></tr>
+              <tr><td>UniDex</td><td>10.7</td><td>16.0</td><td>28.0</td><td>27.3</td><td>1.3</td><td>20.7</td><td>22.0</td><td>16.7</td><td>10.7</td><td class="avg">20.5</td><td>11.0</td><td>16.5</td><td>17.0</td></tr>
+              <tr class="sep ours"><td>SpatialDex (Ours)</td><td>77.3</td><td>94.0</td><td>91.3</td><td>79.3</td><td>16.7</td><td>84.0</td><td>88.7</td><td>75.3</td><td>80.0</td><td class="avg">85.5</td><td>50.4</td><td>81.3</td><td>76.3</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABLATIONS ============ -->
+    <section class="block" id="ablations">
+      <div class="wrap content">
+        <h2 class="sec-title">What Drives the Gains</h2>
+        <p class="lead-p">Under a matched comparison on the same videos, demonstrations, and budget, motion-only pre-training raises mean success from 45.6% to 58.9%, and adding reconstructed geometry raises it further to <span class="hl">73.1%</span>. Removing any component of the geometry pathway or the coordinated action experts lowers success.</p>
+
+        <h3 class="subhead">Success Rate</h3>
+        <div class="bars" id="ablation-bars" data-tasks="Hammer Nail|Bimanual Assembly|Bimanual Microwave|Relocate Ball|Pass Toy|Sweep Trash" aria-label="Ablation mean success rates">
+          <div class="bar-group">
+            <div class="bar-row ours" tabindex="0" data-v="94.0,16.7,84.0,88.7,75.3,80.0"><div class="name">SpatialDex (full)</div><div class="track"><div class="fill" style="width:73.1%"></div><span class="val" style="left:73.1%">73.1</span></div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-group-label">Pre-training data</div>
+            <div class="bar-row" tabindex="0" data-v="90.7,8.0,68.0,87.0,55.3,74.0"><div class="name">Per-frame alignment</div><div class="track"><div class="fill" style="width:63.8%"></div><span class="val" style="left:63.8%">63.8</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="80.0,8.7,66.7,77.3,58.0,62.7"><div class="name">Motion-only pre-training</div><div class="track"><div class="fill" style="width:58.9%"></div><span class="val" style="left:58.9%">58.9</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="62.7,4.0,52.0,64.0,44.7,46.0"><div class="name">No human pre-training</div><div class="track"><div class="fill" style="width:45.6%"></div><span class="val" style="left:45.6%">45.6</span></div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-group-label">Geometric representation and supervision</div>
+            <div class="bar-row" tabindex="0" data-v="87.3,15.0,83.0,88.7,67.0,68.0"><div class="name">No fusion warm-up</div><div class="track"><div class="fill" style="width:68.2%"></div><span class="val" style="left:68.2%">68.2</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="87.3,12.0,76.0,82.7,65.3,67.3"><div class="name">No forward dynamics loss</div><div class="track"><div class="fill" style="width:65.1%"></div><span class="val" style="left:65.1%">65.1</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="82.0,6.0,69.3,73.3,60.7,62.7"><div class="name">Concat RGB + geometry</div><div class="track"><div class="fill" style="width:59.0%"></div><span class="val" style="left:59.0%">59.0</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="72.0,6.7,60.0,74.0,50.7,56.7"><div class="name">2D depth encoding</div><div class="track"><div class="fill" style="width:53.3%"></div><span class="val" style="left:53.3%">53.3</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="50.0,2.3,41.3,55.3,40.0,32.0"><div class="name">RGB-only input</div><div class="track"><div class="fill" style="width:36.8%"></div><span class="val" style="left:36.8%">36.8</span></div></div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-group-label">Coordinated action prediction</div>
+            <div class="bar-row" tabindex="0" data-v="92.0,13.3,80.7,86.0,68.0,76.0"><div class="name">No wrist-trajectory input</div><div class="track"><div class="fill" style="width:69.3%"></div><span class="val" style="left:69.3%">69.3</span></div></div>
+            <div class="bar-row" tabindex="0" data-v="90.0,12.7,78.7,85.3,66.7,73.3"><div class="name">Joint wrist-finger expert</div><div class="track"><div class="fill" style="width:67.8%"></div><span class="val" style="left:67.8%">67.8</span></div></div>
+          </div>
+        </div>
+        <p class="bar-note">Mean success (%) over Hammer Nail, Bimanual Assembly, Bimanual Microwave, Relocate Ball, Pass Toy, and Sweep Trash (three seeds, 50 episodes each). Hover over or tap a bar for per-task results.</p>
+
+        <h3 class="subhead">Per-Task Success Rates</h3>
+        <p class="tbl-cap"><b>Pre-training and component ablations.</b> Success rates (%). Means over three seeds with 50 episodes per task and seed.</p>
+        <div class="table-scroll">
+          <table class="res">
+            <thead>
+              <tr class="group"><th></th><th colspan="3">Allegro + Franka</th><th colspan="3">Wuji + Tianji</th><th class="avg"></th></tr>
+              <tr><th>Variant</th><th>Hammer<br>Nail</th><th>Bimanual<br>Assembly</th><th>Bimanual<br>Microwave</th><th>Relocate<br>Ball</th><th>Pass<br>Toy</th><th>Sweep<br>Trash</th><th class="avg">Avg.</th></tr>
+            </thead>
+            <tbody>
+              <tr class="ours"><td>SpatialDex (Ours)</td><td>94.0</td><td>16.7</td><td>84.0</td><td>88.7</td><td>75.3</td><td>80.0</td><td class="avg">73.1</td></tr>
+              <tr class="sep"><td>No human pre-training</td><td>62.7</td><td>4.0</td><td>52.0</td><td>64.0</td><td>44.7</td><td>46.0</td><td class="avg">45.6</td></tr>
+              <tr><td>Motion-only pre-training</td><td>80.0</td><td>8.7</td><td>66.7</td><td>77.3</td><td>58.0</td><td>62.7</td><td class="avg">58.9</td></tr>
+              <tr><td>Per-frame alignment</td><td>90.7</td><td>8.0</td><td>68.0</td><td>87.0</td><td>55.3</td><td>74.0</td><td class="avg">63.8</td></tr>
+              <tr class="sep"><td>RGB-only input</td><td>50.0</td><td>2.3</td><td>41.3</td><td>55.3</td><td>40.0</td><td>32.0</td><td class="avg">36.8</td></tr>
+              <tr><td>2D depth encoding</td><td>72.0</td><td>6.7</td><td>60.0</td><td>74.0</td><td>50.7</td><td>56.7</td><td class="avg">53.3</td></tr>
+              <tr><td>Concat RGB + geometry</td><td>82.0</td><td>6.0</td><td>69.3</td><td>73.3</td><td>60.7</td><td>62.7</td><td class="avg">59.0</td></tr>
+              <tr><td>No fusion warm-up</td><td>87.3</td><td>15.0</td><td>83.0</td><td>88.7</td><td>67.0</td><td>68.0</td><td class="avg">68.2</td></tr>
+              <tr><td>No forward dynamics loss</td><td>87.3</td><td>12.0</td><td>76.0</td><td>82.7</td><td>65.3</td><td>67.3</td><td class="avg">65.1</td></tr>
+              <tr class="sep"><td>Joint wrist-finger expert</td><td>90.0</td><td>12.7</td><td>78.7</td><td>85.3</td><td>66.7</td><td>73.3</td><td class="avg">67.8</td></tr>
+              <tr><td>No wrist-trajectory input</td><td>92.0</td><td>13.3</td><td>80.7</td><td>86.0</td><td>68.0</td><td>76.0</td><td class="avg">69.3</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIDEO ============ -->
+    <section class="block" id="video">
+      <div class="wrap">
+        <h2 class="sec-title">Video Summary</h2>
+        <div class="player">
+          <video controls playsinline preload="metadata" poster="assets/posters/overview.jpg">
+            <source src="assets/videos/overview.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <footer>
+    <div class="wrap">Anonymous project page for double-blind review.</div>
+  </footer>
+
+  <div class="bar-tip" id="bar-tip" role="tooltip"></div>
+  <script src="assets/main.js"></script>
+</body>
+</html>

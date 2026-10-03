@@ -1,0 +1,3 @@
+# never commit GitHub App keys
+*.pem
+.DS_Store
